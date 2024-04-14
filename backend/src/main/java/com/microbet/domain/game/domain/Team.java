@@ -7,14 +7,15 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@ToString
 public class Team {
 
     @Id @GeneratedValue
@@ -22,4 +23,6 @@ public class Team {
 
     @Enumerated(EnumType.STRING)
     private TeamName name;
+
+    private String alias;
 }

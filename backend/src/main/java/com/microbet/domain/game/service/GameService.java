@@ -13,19 +13,27 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.microbet.domain.game.domain.Team;
+import com.microbet.domain.game.enums.TeamName;
+import com.microbet.domain.game.repository.GameRepository;
+
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class GameService {
 
+    private final GameRepository gameRepository;
+
     private static final String baseUrl = "https://sports.daum.net/baseball";
 
-    public void scrapping() {
+    public void scrapGameInfo() {
 
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setCssEnabled(false);
@@ -41,7 +49,7 @@ public class GameService {
                     .getByXPath("//div[contains(@class, 'team_left') or contains(@class, 'team_right')]");
 
             teamList.forEach((item) -> {
-                inspectTeam(item);
+                System.out.println(createTeam(item).toString());
             });
 
             webClient.close();
@@ -50,11 +58,29 @@ public class GameService {
         }
     }
 
-    private void inspectTeam(HtmlElement team) {
-        HtmlElement teamNameElement = (HtmlElement) team.getFirstByXPath(".//span[@class='inner_tit']");
-        HtmlElement teamScoreElement = (HtmlElement) team.getFirstByXPath(".//em[@class='num_score']");
+    private Team createTeam(HtmlElement item) {        
+        Map<String, String> teamMap = Map.of(
+            "LG", "LG",
+            "KT", "KT",
+            "SSG", "SSG",
+            "NC", "NC",
+            "두산","DOOSAN", 
+            "KIA", "KIA",
+            "롯데","LOTTE", 
+            "삼성","SAMSUNG", 
+            "한화","HANWHA", 
+            "키움", "KIWOOM"
+        );
 
-        System.out.println("팀명: " + teamNameElement.getTextContent());
-        System.out.println("득점: " + teamScoreElement.getTextContent());
+        HtmlElement teamNameElement = (HtmlElement) item.getFirstByXPath(".//span[@class='inner_tit']");
+        
+        // HtmlElement teamScoreElement = (HtmlElement)
+        // item.getFirstByXPath(".//em[@class='num_score']");
+        final String teamAlias = teamNameElement.getTextContent();
+
+        return Team.builder()
+                .name(TeamName.valueOf(teamMap.get(teamAlias)))
+                .alias(teamAlias)
+                .build();
     }
 }

@@ -14,6 +14,6 @@ public class GameApiController {
 
     @GetMapping("/api/v1/game")
     public void saveMemberV1(){
-        gameService.scrapping();
+        gameService.scrapGameInfo();
     }
 }
