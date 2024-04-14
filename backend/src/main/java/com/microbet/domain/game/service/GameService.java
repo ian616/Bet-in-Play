@@ -13,16 +13,20 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.microbet.domain.game.domain.Game;
 import com.microbet.domain.game.domain.Team;
 import com.microbet.domain.game.enums.TeamName;
 import com.microbet.domain.game.repository.GameRepository;
+import com.microbet.domain.game.repository.TeamRepository;
 
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,57 +34,39 @@ import java.util.Map;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final TeamRepository teamRepository;
 
     private static final String baseUrl = "https://sports.daum.net/baseball";
 
+    @Transactional
     public void scrapGameInfo() {
 
-        WebClient webClient = new WebClient(BrowserVersion.CHROME);
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setJavaScriptEnabled(true);
-        webClient.getOptions().setThrowExceptionOnScriptError(false);
-        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        // WebClient webClient = new WebClient(BrowserVersion.CHROME);
+        // webClient.getOptions().setCssEnabled(false);
+        // webClient.getOptions().setJavaScriptEnabled(true);
+        // webClient.getOptions().setThrowExceptionOnScriptError(false);
+        // webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
-        try {
-            HtmlPage page = webClient.getPage(baseUrl);
+        List<Team> teamList = teamRepository.findAll();
+		List<Game> gameList = new ArrayList<>();
 
-            webClient.waitForBackgroundJavaScript(2000);
-            List<HtmlElement> teamList = page
-                    .getByXPath("//div[contains(@class, 'team_left') or contains(@class, 'team_right')]");
+		// 두 개의 팀씩 묶어서 경기 생성
+		for (int i = 0; i < teamList.size() - 1; i += 2) {
+		    gameList.add(createGame(teamList.get(i), teamList.get(i + 1)));
+		}
 
-            teamList.forEach((item) -> {
-                System.out.println(createTeam(item).toString());
-            });
-
-            webClient.close();
-        } catch (IOException e) {
-
-        }
+		gameList.forEach((game) -> {
+		    // System.out.println("어웨이팀: " + game.getAwayTeam().toString());
+		    // System.out.println("홈팀: " + game.getHomeTeam().toString());
+		    gameRepository.save(game);
+		});
     }
 
-    private Team createTeam(HtmlElement item) {        
-        Map<String, String> teamMap = Map.of(
-            "LG", "LG",
-            "KT", "KT",
-            "SSG", "SSG",
-            "NC", "NC",
-            "두산","DOOSAN", 
-            "KIA", "KIA",
-            "롯데","LOTTE", 
-            "삼성","SAMSUNG", 
-            "한화","HANWHA", 
-            "키움", "KIWOOM"
-        );
+    private Game createGame(Team awayTeam, Team homeTeam) {
 
-        HtmlElement teamNameElement = (HtmlElement) item.getFirstByXPath(".//span[@class='inner_tit']");
-        
-        // HtmlElement teamScoreElement = (HtmlElement)
-        // item.getFirstByXPath(".//em[@class='num_score']");
-        final String teamAlias = teamNameElement.getTextContent();
-
-        return Team.builder()
-                .name(TeamName.valueOf(teamMap.get(teamAlias)))
-                .alias(teamAlias)
+        return Game.builder()
+                .awayTeam(awayTeam)
+                .homeTeam(homeTeam)
                 .build();
     }
 }

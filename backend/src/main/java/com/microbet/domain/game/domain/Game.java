@@ -19,19 +19,15 @@ public class Game {
     @Column(name = "game_id")
     private Long id;
 
-    //===홈팀 정보===//
-    @ManyToOne
-    @JoinColumn(name = "home_team_id")
-    private Team homeTeam;
-    
-    private int homeTeamScore;
-
     //===어웨이팀 정보===//
     @ManyToOne
     @JoinColumn(name = "away_team_id")
     private Team awayTeam;
 
-    private int awayTeamScore;
+    //===홈팀 정보===//
+    @ManyToOne
+    @JoinColumn(name = "home_team_id")
+    private Team homeTeam;
 
     //===게임 정보===//
     private String location;
