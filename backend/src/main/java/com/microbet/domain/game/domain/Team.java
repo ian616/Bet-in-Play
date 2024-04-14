@@ -25,4 +25,6 @@ public class Team {
     private TeamName name;
 
     private String alias;
+
+    private int currentScore;
 }
