@@ -15,7 +15,8 @@ import lombok.Setter;
 @Builder
 public class Game {
 
-    @Id @GeneratedValue
+    // 다음스포츠에서 제공하는 게임 id 를 그대로 사용
+    @Id
     @Column(name = "game_id")
     private Long id;
 
@@ -30,6 +31,15 @@ public class Game {
     private Team homeTeam;
 
     //===게임 정보===//
+    //TODO: enum으로 바꾸기
+    private String gameState;
+
     private String location;
 
+    private String broadcasting;
+
+    //===전광판 정보===//
+    private int awayTeamScore;
+
+    private int homeTeamScore;
 }
