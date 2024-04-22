@@ -1,7 +1,11 @@
 package com.microbet.domain.game.domain;
 
+import com.microbet.domain.game.enums.GameState;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -15,8 +19,7 @@ import lombok.Setter;
 @Builder
 public class Game {
 
-    // 다음스포츠에서 제공하는 게임 id 를 그대로 사용
-    @Id
+    @Id @GeneratedValue
     @Column(name = "game_id")
     private Long id;
 
@@ -31,15 +34,19 @@ public class Game {
     private Team homeTeam;
 
     //===게임 정보===//
-    //TODO: enum으로 바꾸기
-    private String gameState;
+    private Long daumGameId;
+
+    @Enumerated(EnumType.STRING)
+    private GameState gameState;
+
+    private String startTime;
 
     private String location;
 
     private String broadcasting;
 
     //===전광판 정보===//
-    private int awayTeamScore;
+    private Integer awayTeamScore;
 
-    private int homeTeamScore;
+    private Integer homeTeamScore;
 }

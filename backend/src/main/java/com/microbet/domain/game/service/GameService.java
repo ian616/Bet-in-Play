@@ -15,6 +15,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.microbet.domain.game.domain.Game;
 import com.microbet.domain.game.domain.Team;
+import com.microbet.domain.game.enums.GameState;
 import com.microbet.domain.game.enums.TeamName;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.TeamRepository;
@@ -49,7 +50,7 @@ public class GameService {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
-        LocalDate currentDate = LocalDate.now().minusDays(3);
+        LocalDate currentDate = LocalDate.now().minusDays(2);
 
         // 달까지만 표시하는 형식
         DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("yyyyMM");
@@ -80,12 +81,14 @@ public class GameService {
     }
 
     private Game createGame(HtmlElement item) {
+
         // ===html element에서 scrapping 하는 로직===//
         HtmlElement gameLinkElement = (HtmlElement) item.getFirstByXPath(".//a[contains(@class, 'link_game')]");
 
-        // 다음 스포츠에서 home, away 팀을 반대로 표기함...미친놈들
         HtmlElement awayTeamElement = (HtmlElement) item.getFirstByXPath(".//div[contains(@class, 'team_home')]");
         HtmlElement homeTeamElement = (HtmlElement) item.getFirstByXPath(".//div[contains(@class, 'team_away')]");
+
+        HtmlElement gameStateElement = (HtmlElement) item.getFirstByXPath(".//span[@class='state_game ']");
 
         HtmlElement awayTeamScoreElement = (HtmlElement) awayTeamElement
                 .getFirstByXPath(".//span[contains(@class, 'num_score')] | .//em[contains(@class, 'num_score')]");
@@ -93,21 +96,39 @@ public class GameService {
                 .getFirstByXPath(".//span[contains(@class, 'num_score')] | .//em[contains(@class, 'num_score')]");
 
         // ===scrapping한 값들을 실제 데이터화 하는 로직===//
-        String[] gameLinkTokens = gameLinkElement.getAttribute("href").split("/");
-        Long gameId = Long.parseLong(gameLinkTokens[gameLinkTokens.length - 1]);
-
+        Long gameId = null;
+        if(gameLinkElement != null){
+            String[] gameLinkTokens = gameLinkElement.getAttribute("href").split("/");
+            gameId = Long.parseLong(gameLinkTokens[gameLinkTokens.length - 1]);
+        }
+        
         String awayTeamAlias = ((HtmlElement) awayTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
                 .getTextContent();
         String homeTeamAlias = ((HtmlElement) homeTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
                 .getTextContent();
 
-        int awayTeamScore = Integer.parseInt(awayTeamScoreElement.getTextContent());
-        int homeTeamScore = Integer.parseInt(homeTeamScoreElement.getTextContent());
+        Map<String, String> gameStateMap = Map.of(
+                "경기전", "BEFORE_GAME",
+                "경기중", "DURING_GAME",
+                "종료", "AFTER_GAME",
+                "경기취소", "CANCELED");
+
+        String gameState = gameStateMap.get(gameStateElement.getTextContent());
+        String startTime = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_time']")).getTextContent();
+        String location = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_area']")).getTextContent().trim();
+        String broadcasting = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_tv']")).getTextContent();
+
+        Integer awayTeamScore = awayTeamScoreElement.getTextContent().equals("-") ? null : Integer.parseInt(awayTeamScoreElement.getTextContent());
+        Integer homeTeamScore = homeTeamScoreElement.getTextContent().equals("-") ? null : Integer.parseInt(homeTeamScoreElement.getTextContent());
 
         return Game.builder()
-                .id(gameId)
                 .awayTeam(teamRepository.findByAlias(awayTeamAlias))
                 .homeTeam(teamRepository.findByAlias(homeTeamAlias))
+                .daumGameId(gameId)
+                .gameState(GameState.valueOf(gameState))
+                .startTime(startTime)
+                .location(location)
+                .broadcasting(broadcasting)
                 .awayTeamScore(awayTeamScore)
                 .homeTeamScore(homeTeamScore)
                 .build();
