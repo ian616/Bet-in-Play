@@ -31,5 +31,5 @@ public class Team {
     // ex) 롯데 자이언츠
     private String fullName;
 
-    private String logoString;
+    private String logoURL;
 }

@@ -22,6 +22,12 @@ public class TeamRepository {
         return em.createQuery("select m from Team m", Team.class)
                 .getResultList();
     }
+
+    public Team findByAlias(String alias) {
+        return em.createQuery("select m from Team m where m.alias = :alias", Team.class)
+                .setParameter("alias", alias)
+                .getSingleResult();
+    }
 }
 
 
