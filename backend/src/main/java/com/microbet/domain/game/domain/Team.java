@@ -21,10 +21,15 @@ public class Team {
     @Id @GeneratedValue
     public Long id;
 
+    // ex) LOTTE
     @Enumerated(EnumType.STRING)
     private TeamName name;
 
+    // ex) 롯데
     private String alias;
 
-    private int currentScore;
+    // ex) 롯데 자이언츠
+    private String fullName;
+
+    private String logoString;
 }
