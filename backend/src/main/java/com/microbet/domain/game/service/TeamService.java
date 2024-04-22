@@ -63,7 +63,7 @@ public class TeamService {
     private Team createTeam(HtmlElement item) {
         Map<String, String> teamMap = Map.of(
                 "LG", "LG",
-                "kt", "KT",
+                "KT", "KT",
                 "SSG", "SSG",
                 "NC", "NC",
                 "두산", "DOOSAN",
@@ -76,19 +76,16 @@ public class TeamService {
         HtmlElement teamNameElement = (HtmlElement) item.getFirstByXPath(".//strong[@class='tit_thumb']");
         HtmlElement teamLogoElement = (HtmlElement) item.getFirstByXPath(".//img[@class='thumb_g']");
 
-        final String fullName = teamNameElement.getTextContent();
-        final String logoString = teamLogoElement.getAttribute("src");
+        final String fullName = teamNameElement.getTextContent().toUpperCase();
+        final String logoURL = teamLogoElement.getAttribute("src");
 
         String[] tokens = fullName.split("\\s+");
-
-        System.out.println(tokens[0]);
-        System.out.println(teamMap.get(tokens[0]));
 
         return Team.builder()
                 .name(TeamName.valueOf(teamMap.get(tokens[0])))
                 .alias(tokens[0])
                 .fullName(fullName)
-                .logoString(logoString)
+                .logoURL(logoURL)
                 .build();
     }
 }

@@ -70,8 +70,7 @@ public class GameService {
             List<HtmlElement> gameList = page.getByXPath(xpathExpr);
 
             gameList.forEach((item) -> {
-                // gameRepository.save(createGame(item));
-                createGame(item);
+                gameRepository.save(createGame(item));
             });
 
             webClient.close();
@@ -81,25 +80,36 @@ public class GameService {
     }
 
     private Game createGame(HtmlElement item) {
+        // ===html element에서 scrapping 하는 로직===//
+        HtmlElement gameLinkElement = (HtmlElement) item.getFirstByXPath(".//a[contains(@class, 'link_game')]");
+
         // 다음 스포츠에서 home, away 팀을 반대로 표기함...미친놈들
         HtmlElement awayTeamElement = (HtmlElement) item.getFirstByXPath(".//div[contains(@class, 'team_home')]");
         HtmlElement homeTeamElement = (HtmlElement) item.getFirstByXPath(".//div[contains(@class, 'team_away')]");
 
-        
         HtmlElement awayTeamScoreElement = (HtmlElement) awayTeamElement
                 .getFirstByXPath(".//span[contains(@class, 'num_score')] | .//em[contains(@class, 'num_score')]");
         HtmlElement homeTeamScoreElement = (HtmlElement) homeTeamElement
                 .getFirstByXPath(".//span[contains(@class, 'num_score')] | .//em[contains(@class, 'num_score')]");
 
-        String awayTeamName = ((HtmlElement)awayTeamElement.getFirstByXPath(".//span[@class='txt_team']")).getTextContent();
-        String homeTeamName = ((HtmlElement)homeTeamElement.getFirstByXPath(".//span[@class='txt_team']")).getTextContent();
+        // ===scrapping한 값들을 실제 데이터화 하는 로직===//
+        String[] gameLinkTokens = gameLinkElement.getAttribute("href").split("/");
+        Long gameId = Long.parseLong(gameLinkTokens[gameLinkTokens.length - 1]);
 
-        
+        String awayTeamAlias = ((HtmlElement) awayTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
+                .getTextContent();
+        String homeTeamAlias = ((HtmlElement) homeTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
+                .getTextContent();
+
         int awayTeamScore = Integer.parseInt(awayTeamScoreElement.getTextContent());
         int homeTeamScore = Integer.parseInt(homeTeamScoreElement.getTextContent());
 
-        
         return Game.builder()
+                .id(gameId)
+                .awayTeam(teamRepository.findByAlias(awayTeamAlias))
+                .homeTeam(teamRepository.findByAlias(homeTeamAlias))
+                .awayTeamScore(awayTeamScore)
+                .homeTeamScore(homeTeamScore)
                 .build();
     }
 }
