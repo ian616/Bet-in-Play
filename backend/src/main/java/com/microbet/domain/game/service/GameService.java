@@ -39,6 +39,8 @@ public class GameService {
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
 
+    private final ScoreBoardService scoreBoardService;
+
     private static final String baseUrl = "https://sports.daum.net/schedule/kbo";
 
     @Transactional
@@ -50,7 +52,7 @@ public class GameService {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
-        LocalDate currentDate = LocalDate.now().minusDays(2);
+        LocalDate currentDate = LocalDate.now();
 
         // 달까지만 표시하는 형식
         DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("yyyyMM");
@@ -88,7 +90,7 @@ public class GameService {
         HtmlElement awayTeamElement = (HtmlElement) item.getFirstByXPath(".//div[contains(@class, 'team_home')]");
         HtmlElement homeTeamElement = (HtmlElement) item.getFirstByXPath(".//div[contains(@class, 'team_away')]");
 
-        HtmlElement gameStateElement = (HtmlElement) item.getFirstByXPath(".//span[@class='state_game ']");
+        HtmlElement gameStateElement = (HtmlElement) item.getFirstByXPath(".//span[contains(@class, 'state_game')]");
 
         HtmlElement awayTeamScoreElement = (HtmlElement) awayTeamElement
                 .getFirstByXPath(".//span[contains(@class, 'num_score')] | .//em[contains(@class, 'num_score')]");
@@ -97,29 +99,46 @@ public class GameService {
 
         // ===scrapping한 값들을 실제 데이터화 하는 로직===//
         Long gameId = null;
-        if(gameLinkElement != null){
+        if (gameLinkElement != null) {
             String[] gameLinkTokens = gameLinkElement.getAttribute("href").split("/");
             gameId = Long.parseLong(gameLinkTokens[gameLinkTokens.length - 1]);
         }
-        
+
         String awayTeamAlias = ((HtmlElement) awayTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
                 .getTextContent();
         String homeTeamAlias = ((HtmlElement) homeTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
                 .getTextContent();
 
-        Map<String, String> gameStateMap = Map.of(
-                "경기전", "BEFORE_GAME",
-                "경기중", "DURING_GAME",
-                "종료", "AFTER_GAME",
-                "경기취소", "CANCELED");
+        String gameStateRaw = gameStateElement.getTextContent();
+        String gameState;
 
-        String gameState = gameStateMap.get(gameStateElement.getTextContent());
-        String startTime = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_time']")).getTextContent();
+        switch (gameStateRaw) {
+            case "경기전":
+                gameState = "BEFORE_GAME";
+                break;
+            case "경기종료":
+                gameState = "AFTER_GAME";
+                break;
+            case "경기취소":
+                gameState = "CANCELED";
+                break;
+            default:
+                gameState = "DURING_GAME";
+                break;
+        }
+
+        String startTime = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_time']")).getTextContent().replace("경기중", "");
         String location = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_area']")).getTextContent().trim();
         String broadcasting = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_tv']")).getTextContent();
 
-        Integer awayTeamScore = awayTeamScoreElement.getTextContent().equals("-") ? null : Integer.parseInt(awayTeamScoreElement.getTextContent());
-        Integer homeTeamScore = homeTeamScoreElement.getTextContent().equals("-") ? null : Integer.parseInt(homeTeamScoreElement.getTextContent());
+        // Integer awayTeamScore = awayTeamScoreElement.getTextContent().equals("-") ?
+        // null : Integer.parseInt(awayTeamScoreElement.getTextContent());
+        // Integer homeTeamScore = homeTeamScoreElement.getTextContent().equals("-") ?
+        // null : Integer.parseInt(homeTeamScoreElement.getTextContent());
+
+        if(gameId != null){
+            scoreBoardService.scrapScoreBoardInfo(gameId);
+        }
 
         return Game.builder()
                 .awayTeam(teamRepository.findByAlias(awayTeamAlias))
@@ -129,8 +148,6 @@ public class GameService {
                 .startTime(startTime)
                 .location(location)
                 .broadcasting(broadcasting)
-                .awayTeamScore(awayTeamScore)
-                .homeTeamScore(homeTeamScore)
                 .build();
     }
 }

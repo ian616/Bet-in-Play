@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,7 +47,7 @@ public class Game {
     private String broadcasting;
 
     //===전광판 정보===//
-    private Integer awayTeamScore;
-
-    private Integer homeTeamScore;
+    @OneToOne
+    @JoinColumn(name="scoreboard_id")
+    private ScoreBoard scoreBoard;
 }
