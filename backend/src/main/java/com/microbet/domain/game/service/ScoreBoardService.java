@@ -1,16 +1,14 @@
 package com.microbet.domain.game.service;
 
+import org.openqa.selenium.PageLoadStrategy;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.TeamRepository;
-
-import java.io.IOException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,23 +23,17 @@ public class ScoreBoardService {
     public void scrapScoreBoardInfo(Long daumGameId) {
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", daumGameId);
 
-        WebClient webClient = new WebClient(BrowserVersion.INTERNET_EXPLORER);
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setJavaScriptEnabled(true);
-        webClient.getOptions().setThrowExceptionOnScriptError(false);
-        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--single-process");
+        options.addArguments("--disable-dev-shm-usage");
+        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
 
-        try{
-            HtmlPage page = webClient.getPage(baseURL);
-            webClient.waitForBackgroundJavaScript(2000);
+        System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
 
-            HtmlElement scoreInfo = (HtmlElement) page.getFirstByXPath("//div[@class='info_score']");
-            System.out.println(scoreInfo.getTextContent());
+        WebDriver driver = new ChromeDriver(options);
 
-            webClient.close();
-
-        }catch(IOException e){
-
-        }
+        driver.get(baseURL);
     }
 }

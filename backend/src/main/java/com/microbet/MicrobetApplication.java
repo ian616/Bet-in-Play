@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class MicrobetApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MicrobetApplication.class, args);
-	}
+        SpringApplication.run(MicrobetApplication.class, args);
+    }
 
 }
