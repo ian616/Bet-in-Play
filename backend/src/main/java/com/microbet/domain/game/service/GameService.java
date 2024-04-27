@@ -20,6 +20,7 @@ import com.microbet.domain.game.enums.TeamName;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.TeamRepository;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -38,8 +39,6 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
-
-    private final ScoreBoardService scoreBoardService;
 
     private static final String baseUrl = "https://sports.daum.net/schedule/kbo";
 
@@ -135,10 +134,6 @@ public class GameService {
         // null : Integer.parseInt(awayTeamScoreElement.getTextContent());
         // Integer homeTeamScore = homeTeamScoreElement.getTextContent().equals("-") ?
         // null : Integer.parseInt(homeTeamScoreElement.getTextContent());
-
-        if(gameId != null){
-            scoreBoardService.scrapScoreBoardInfo(gameId);
-        }
 
         return Game.builder()
                 .awayTeam(teamRepository.findByAlias(awayTeamAlias))

@@ -24,6 +24,7 @@ import com.microbet.domain.game.enums.TeamName;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.TeamRepository;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service

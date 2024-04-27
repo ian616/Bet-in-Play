@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 @Component
 public class WebDriverUtil {
@@ -39,14 +40,16 @@ public class WebDriverUtil {
         return driver;
     }
 
-    public static void quit(WebDriver driver) {
+    public static void quit() {
         if (!ObjectUtils.isEmpty(driver)) {
+            System.out.println("Shutdown Webdriver...");
             driver.quit();
         }
     }
 
-    public static void close(WebDriver driver) {
+    public static void close() {
         if (!ObjectUtils.isEmpty(driver)) {
+            System.out.println("Close Webdriver...");
             driver.close();
         }
     }

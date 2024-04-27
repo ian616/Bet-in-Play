@@ -29,6 +29,5 @@ public class ScoreBoardService {
         
         driver.get(baseURL);
         System.out.println("Title: " + driver.getTitle());
-        WebDriverUtil.close(driver);
     }
 }
