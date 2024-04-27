@@ -14,10 +14,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.microbet.domain.game.domain.Game;
+import com.microbet.domain.game.domain.ScoreBoard;
 import com.microbet.domain.game.domain.Team;
 import com.microbet.domain.game.enums.GameState;
 import com.microbet.domain.game.enums.TeamName;
 import com.microbet.domain.game.repository.GameRepository;
+import com.microbet.domain.game.repository.ScoreBoardRepository;
 import com.microbet.domain.game.repository.TeamRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -42,9 +44,11 @@ public class GameService {
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
 
+    private final ScoreBoardService scoreBoardService;
+
     private static final String baseUrl = "https://sports.daum.net/schedule/kbo";
 
-    public List<Game> findGames(){
+    public List<Game> findGames() {
         return gameRepository.findAll();
     }
 
@@ -78,7 +82,8 @@ public class GameService {
             List<HtmlElement> gameList = page.getByXPath(xpathExpr);
 
             gameList.forEach((item) -> {
-                gameRepository.save(createGame(item));
+                Long gameId = gameRepository.save(createGame(item));
+                scoreBoardService.scrapScoreBoardInfo(gameId);
             });
 
             webClient.close();
@@ -103,10 +108,10 @@ public class GameService {
                 .getFirstByXPath(".//span[contains(@class, 'num_score')] | .//em[contains(@class, 'num_score')]");
 
         // ===scrapping한 값들을 실제 데이터화 하는 로직===//
-        Long gameId = null;
+        Long daumGameId = null;
         if (gameLinkElement != null) {
             String[] gameLinkTokens = gameLinkElement.getAttribute("href").split("/");
-            gameId = Long.parseLong(gameLinkTokens[gameLinkTokens.length - 1]);
+            daumGameId = Long.parseLong(gameLinkTokens[gameLinkTokens.length - 1]);
         }
 
         String awayTeamAlias = ((HtmlElement) awayTeamElement.getFirstByXPath(".//span[@class='txt_team']"))
@@ -132,7 +137,8 @@ public class GameService {
                 break;
         }
 
-        String startTime = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_time']")).getTextContent().replace("경기중", "");
+        String startTime = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_time']")).getTextContent()
+                .replace("경기중", "");
         String location = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_area']")).getTextContent().trim();
         String broadcasting = ((HtmlElement) item.getFirstByXPath(".//td[@class='td_tv']")).getTextContent();
 
@@ -144,11 +150,12 @@ public class GameService {
         return Game.builder()
                 .awayTeam(teamRepository.findByAlias(awayTeamAlias))
                 .homeTeam(teamRepository.findByAlias(homeTeamAlias))
-                .daumGameId(gameId)
+                .daumGameId(daumGameId)
                 .gameState(GameState.valueOf(gameState))
                 .startTime(startTime)
                 .location(location)
                 .broadcasting(broadcasting)
                 .build();
+
     }
 }

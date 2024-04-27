@@ -16,18 +16,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoreBoard {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "scoreboard_id")
     private Long id;
 
     @OneToOne
-    @JoinColumn(name="game_id")
+    @JoinColumn(name = "game_id")
     private Game game;
 
     private List<Integer> awayTeamScores;

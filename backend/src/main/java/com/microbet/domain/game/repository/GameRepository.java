@@ -15,12 +15,25 @@ import lombok.RequiredArgsConstructor;
 public class GameRepository {
     private final EntityManager em;
 
-    public void save(Game game) {
+    public Long save(Game game) {
         em.persist(game);
+        return game.getId();
     }
 
     public List<Game> findAll() {
         return em.createQuery("select m from Game m", Game.class)
                 .getResultList();
+    }
+
+    public Game findById(Long id){
+        return em.createQuery("select m from Game m where m.id = :id", Game.class)
+        .setParameter("id", id)
+        .getSingleResult();
+    }
+
+    public Game findByDaumGameId(Long daumGameId) {
+        return em.createQuery("select m from Game m where m.daumGameId = :daumGameId", Game.class)
+                .setParameter("daumGameId", daumGameId)
+                .getSingleResult();
     }
 }

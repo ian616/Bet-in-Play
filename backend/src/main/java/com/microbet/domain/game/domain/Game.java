@@ -18,27 +18,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Game {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "game_id")
     private Long id;
 
-    //===어웨이팀 정보===//
+    // ===어웨이팀 정보===//
     @ManyToOne
     @JoinColumn(name = "away_team_id")
     private Team awayTeam;
 
-    //===홈팀 정보===//
+    // ===홈팀 정보===//
     @ManyToOne
     @JoinColumn(name = "home_team_id")
     private Team homeTeam;
 
-    //===게임 정보===//
+    // ===게임 정보===//
     private Long daumGameId;
 
     @Enumerated(EnumType.STRING)
@@ -50,7 +52,7 @@ public class Game {
 
     private String broadcasting;
 
-    //===전광판 정보===//
+    // ===전광판 정보===//
     @OneToOne(mappedBy = "game")
     private ScoreBoard scoreBoard;
 }

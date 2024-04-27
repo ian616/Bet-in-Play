@@ -25,6 +25,6 @@ public class GameApiController {
     
     @GetMapping("/api/v1/game/{id}")
     public void getScoreBoard(@PathVariable("id") Long daumGameId){
-        scoreBoardService.scrapScoreBoardInfo(daumGameId);
+        // scoreBoardService.scrapScoreBoardInfo(daumGameId);
     }
 }

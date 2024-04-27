@@ -14,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 public class TeamRepository {
     private final EntityManager em;
 
-    public void save(Team team) {
+    public Long save(Team team) {
         em.persist(team);
+        return team.getId();
     }
 
     public List<Team> findAll() {
