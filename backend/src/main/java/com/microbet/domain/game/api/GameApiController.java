@@ -1,6 +1,7 @@
 package com.microbet.domain.game.api;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,16 +16,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GameApiController {
 
-    private final GameService gameService;
     private final ScoreBoardService scoreBoardService;
 
     @GetMapping("/api/v1/game")
     public void getGameList() {
-        gameService.scrapGameInfo();
+        
     }
     
     @GetMapping("/api/v1/game/{id}")
-    public void getScoreBoard(@RequestParam Long gameId){
-        scoreBoardService.scrapScoreBoardInfo(gameId);
+    public void getScoreBoard(@PathVariable("id") Long daumGameId){
+        scoreBoardService.scrapScoreBoardInfo(daumGameId);
     }
 }

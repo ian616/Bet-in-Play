@@ -17,11 +17,12 @@ import lombok.RequiredArgsConstructor;
 public class MyConfiguration {
 
     private final TeamService teamService;
+    private final GameService gameService;
 
     @PostConstruct
     public void init() {
         teamService.scrapTeamInfo();
-        
+        gameService.scrapGameInfo();
     }
 
     @PreDestroy

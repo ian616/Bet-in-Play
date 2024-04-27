@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+//TODO: Selenium 사용하는 코드로 바꾸기!
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -41,6 +43,10 @@ public class GameService {
     private final TeamRepository teamRepository;
 
     private static final String baseUrl = "https://sports.daum.net/schedule/kbo";
+
+    public List<Game> findGames(){
+        return gameRepository.findAll();
+    }
 
     @Transactional
     public void scrapGameInfo() {

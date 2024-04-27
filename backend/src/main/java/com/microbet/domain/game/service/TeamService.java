@@ -36,6 +36,10 @@ public class TeamService {
 
     private static final String baseUrl = "https://sports.daum.net/team/kbo";
 
+    public List<Team> findTeams(){
+        return teamRepository.findAll();
+    }
+
     @Transactional
     public void scrapTeamInfo() {
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
