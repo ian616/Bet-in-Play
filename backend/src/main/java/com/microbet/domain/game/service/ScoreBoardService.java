@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.TeamRepository;
+import com.microbet.global.common.WebDriverUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,17 +24,11 @@ public class ScoreBoardService {
     public void scrapScoreBoardInfo(Long daumGameId) {
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", daumGameId);
 
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--single-process");
-        options.addArguments("--disable-dev-shm-usage");
-        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-
-        System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
-
-        WebDriver driver = new ChromeDriver(options);
-
+        System.out.println(daumGameId);
+        WebDriver driver = WebDriverUtil.getChromeDriver();
+        
         driver.get(baseURL);
+        System.out.println("Title: " + driver.getTitle());
+        WebDriverUtil.close(driver);
     }
 }
