@@ -51,7 +51,6 @@ public class Game {
     private String broadcasting;
 
     //===전광판 정보===//
-    @OneToOne
-    @JoinColumn(name="scoreboard_id")
+    @OneToOne(mappedBy = "game")
     private ScoreBoard scoreBoard;
 }

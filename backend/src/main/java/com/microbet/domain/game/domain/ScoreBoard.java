@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,8 @@ public class ScoreBoard {
     @Column(name = "scoreboard_id")
     private Long id;
 
-    @OneToOne(mappedBy = "scoreBoard")
+    @OneToOne
+    @JoinColumn(name="game_id")
     private Game game;
 
     private List<Integer> awayTeamScores;
