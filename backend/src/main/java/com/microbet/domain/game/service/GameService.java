@@ -83,8 +83,12 @@ public class GameService {
 
             gameList.forEach((item) -> {
                 Long gameId = gameRepository.save(createGame(item));
-                scoreBoardService.scrapScoreBoardInfo(gameId);
+                // TEST: 시간 문제때문에 일단 하나만 스크랩하는걸로 테스트. 추후 복원하면 됨.
+                // scoreBoardService.scrapScoreBoardInfo(gameId);
             });
+            
+            // TEST: 임시로 0번 게임만 가져와서 전광판 정보 스크랩. 추후 삭제하면 됨.
+            scoreBoardService.scrapScoreBoardInfo(1L);
 
             webClient.close();
         } catch (IOException e) {

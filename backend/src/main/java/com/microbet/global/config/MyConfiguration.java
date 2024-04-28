@@ -23,8 +23,12 @@ public class MyConfiguration {
     @PostConstruct
     public void init() {
         System.out.println("start scrapping...");
+        System.out.println("scrapping team information...");
         teamService.scrapTeamInfo();
+        System.out.println("...team information scrapped successfully.");
+        System.out.println("scrapping game information...");
         gameService.scrapGameInfo();
+        System.out.println("...game information scrapped successfully.");
         System.out.println("...scrapping complete.");
     }
 

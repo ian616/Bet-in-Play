@@ -48,19 +48,20 @@ public class ScoreBoardService {
         // inningTab.findElement(By.xpath(".//li[@class='on']/a[contains(@class,
         // '#inning')]"));
 
-        WebElement table = driver.findElement(By.xpath("//table[contains(@class, 'tbl_score')]/tbody"));
+        List<WebElement> tables = driver.findElements(By.xpath("//table[contains(@class, 'tbl_score')]/tbody"));
 
-        scoreBoardRepository.save(createScoreBoard(table, game));
+        scoreBoardRepository.save(createScoreBoard(tables.get(0), tables.get(1), game));
     }
 
-    private ScoreBoard createScoreBoard(WebElement table, Game game) {
+    private ScoreBoard createScoreBoard(WebElement scoreTable, WebElement infoTable, Game game) {
         List<Integer> awayTeamScores = new ArrayList<>();
         List<Integer> homeTeamScores = new ArrayList<>();
 
-        List<WebElement> rows = table.findElements(By.tagName("tr"));
+        List<WebElement> scoreRows = scoreTable.findElements(By.tagName("tr"));
+        List<WebElement> infoRows = infoTable.findElements(By.tagName("tr"));
 
         // Away Team
-        List<WebElement> awayTeamScoresElements = rows.get(0).findElements(By.tagName("td"));
+        List<WebElement> awayTeamScoresElements = scoreRows.get(0).findElements(By.tagName("td"));
 
         awayTeamScoresElements.forEach((score) -> {
             String scoreString = score.getText();
@@ -69,25 +70,55 @@ public class ScoreBoardService {
             }
         });
 
+        List<WebElement> awayTeamInfosElements = infoRows.get(0).findElements(By.tagName("td"));
+        List<Integer> awayTeamInfos = new ArrayList<>();
+
+        awayTeamInfosElements.forEach((info) -> {
+            String scoreString = info.getText();
+            if (scoreString == "") {
+                awayTeamInfos.add(null);
+            }else{
+                awayTeamInfos.add(Integer.parseInt(scoreString));
+            }
+        });
+        System.out.println(awayTeamInfos.toString());
+
         // Home Team
-        List<WebElement> homeTeamScoresElements = rows.get(1).findElements(By.tagName("td"));
+        List<WebElement> homeTeamScoresElements = scoreRows.get(1).findElements(By.tagName("td"));
 
         homeTeamScoresElements.forEach((score) -> {
             String scoreString = score.getText();
-            if (scoreString == "") {
-                homeTeamScores.add(null);
-            } else {
+            if (scoreString != "") {
                 homeTeamScores.add(Integer.parseInt(scoreString));
             }
 
         });
 
+        List<WebElement> homeTeamInfosElements = infoRows.get(1).findElements(By.tagName("td"));
+        List<Integer> homeTeamInfos = new ArrayList<>();
+
+        homeTeamInfosElements.forEach((info) -> {
+            String scoreString = info.getText();
+            if (scoreString == "") {
+                homeTeamInfos.add(null);
+            }else{
+                homeTeamInfos.add(Integer.parseInt(scoreString));
+            }
+        });
+        System.out.println(homeTeamInfos.toString());
+
         return ScoreBoard.builder()
                 .game(game)
                 .awayTeamScores(awayTeamScores)
                 .homeTeamScores(homeTeamScores)
-                // .awayTeamScore(awayTeamScores.get(awayTeamScores.size() - 1))
-                // .homeTeamScore(homeTeamScores.get(homeTeamScores.size() - 1))
+                .awayTeamScore(awayTeamInfos.get(0))
+                .homeTeamScore(homeTeamInfos.get(0))
+                .awayTeamHit(awayTeamInfos.get(1))
+                .homeTeamHit(homeTeamInfos.get(1))
+                .awayTeamError(awayTeamInfos.get(2))
+                .homeTeamError(homeTeamInfos.get(2))
+                .awayTeamBB(awayTeamInfos.get(3))
+                .homeTeamBB(homeTeamInfos.get(3))
                 .build();
     }
 }
