@@ -34,19 +34,9 @@ public class ScoreBoardService {
         Game game = gameRepository.findById(id);
 
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
-
         WebDriver driver = WebDriverUtil.getChromeDriver();
 
         driver.get(baseURL);
-        // WebElement castButton =
-        // driver.findElement(By.xpath("//li[contains(@data-menu, 'cast')]"));
-        // castButton.click();
-
-        // WebElement inningTab = driver.findElement(By.xpath("//ul[contains(@class,
-        // 'list_inning')]"));
-        // WebElement currentInning =
-        // inningTab.findElement(By.xpath(".//li[@class='on']/a[contains(@class,
-        // '#inning')]"));
 
         List<WebElement> tables = driver.findElements(By.xpath("//table[contains(@class, 'tbl_score')]/tbody"));
 
