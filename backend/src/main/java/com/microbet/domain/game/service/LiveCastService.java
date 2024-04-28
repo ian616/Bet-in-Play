@@ -16,5 +16,8 @@ public class LiveCastService {
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
 
-    
+    @Transactional
+    public void scrapScoreBoardInfo(Long id){
+        
+    }
 }

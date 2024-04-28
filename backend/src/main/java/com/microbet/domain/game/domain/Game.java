@@ -1,5 +1,7 @@
 package com.microbet.domain.game.domain;
 
+import java.util.List;
+
 import com.microbet.domain.game.enums.GameState;
 
 import jakarta.persistence.Column;
@@ -10,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,4 +58,8 @@ public class Game {
     // ===전광판 정보===//
     @OneToOne(mappedBy = "game")
     private ScoreBoard scoreBoard;
+
+    // ===라이브 캐스트===//
+    @OneToMany(mappedBy = "game")
+    private List<LiveCast> liveCasts;
 }
