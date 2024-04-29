@@ -2,7 +2,10 @@ package com.microbet.domain.game.domain;
 
 import java.util.List;
 
+import com.microbet.domain.game.embeddable.Player;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,9 +37,8 @@ public class LiveCast {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    private String player;
-    private int battingOrder;
-    private int backNumber;
+    @Embedded
+    private Player player;
 
     private List<String> currentText;
 }

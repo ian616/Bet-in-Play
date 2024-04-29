@@ -71,7 +71,6 @@ public class ScoreBoardService {
                 awayTeamInfos.add(Integer.parseInt(scoreString));
             }
         });
-        System.out.println(awayTeamInfos.toString());
 
         // Home Team
         List<WebElement> homeTeamScoresElements = scoreRows.get(1).findElements(By.tagName("td"));
@@ -95,7 +94,6 @@ public class ScoreBoardService {
                 homeTeamInfos.add(Integer.parseInt(scoreString));
             }
         });
-        System.out.println(homeTeamInfos.toString());
 
         return ScoreBoard.builder()
                 .game(game)

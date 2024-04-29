@@ -61,7 +61,7 @@ public class GameService {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
-        LocalDate currentDate = LocalDate.now();
+        LocalDate currentDate = LocalDate.now().minusDays(1);
 
         // 달까지만 표시하는 형식
         DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("yyyyMM");
@@ -88,7 +88,7 @@ public class GameService {
             });
             
             // TEST: 임시로 0번 게임만 가져와서 전광판 정보 스크랩. 추후 삭제하면 됨.
-            scoreBoardService.scrapScoreBoardInfo(1L);
+            // scoreBoardService.scrapScoreBoardInfo(1L);
 
             webClient.close();
         } catch (IOException e) {
