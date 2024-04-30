@@ -8,6 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,15 @@ public class LiveCastService {
 
     private final GameRepository gameRepository;
     private final TeamRepository teamRepository;
+
+    @Scheduled(fixedRate = 5000)
+    public void scrapePeriodically() {
+        WebDriver driver = WebDriverUtil.getChromeDriver();
+        driver.navigate().refresh();
+        System.out.println("scrapping casting text periodically...");
+        scrapLiveCast(5L);
+        System.out.println("scrapping casting done.");
+    }
 
     @Transactional
     public void scrapLiveCast(Long id) {
@@ -58,44 +68,38 @@ public class LiveCastService {
                 String playerImageURL = playerImageElement.getAttribute("src");
 
                 String playerText = playerTextElement.getText();
-                String pattern = "^(.*?) (\\d+)번타자 \\(No\\.(\\d+)\\)$";
+
+                String pattern = "^(.*?)\\n(\\d+)번타자 \\(No\\.(\\d+)\\)$";
 
                 Pattern regex = Pattern.compile(pattern);
                 Matcher matcher = regex.matcher(playerText);
 
-      
-                String name = matcher.group(1);
-                int battingOrder = Integer.parseInt(matcher.group(2));
-                int backNumber = Integer.parseInt(matcher.group(3));
+                Player player = null;
 
-                Player player = Player.builder()
-                                    .name(name)
-                                    .battingOrder(battingOrder)
-                                    .backNumber(backNumber)
-                                    .playerImageURL(playerImageURL)
-                                    .build();
+                if (matcher.matches()) {
+
+                    String name = matcher.group(1);
+                    int battingOrder = Integer.parseInt(matcher.group(2));
+                    int backNumber = Integer.parseInt(matcher.group(3));
+
+                    player = Player.builder()
+                            .name(name)
+                            .battingOrder(battingOrder)
+                            .backNumber(backNumber)
+                            .playerImageURL(playerImageURL)
+                            .build();
+                }
                 // 문자 중계 스크래핑
                 List<WebElement> pureCastTextElements = playerCast
                         .findElements(By.xpath(".//em[@class='sms_word ']"));
                 List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
-                LiveCast livecast = createLiveCast(game, player, currentText);
-
-                System.out.println(livecast.getCurrentText());
-                System.out.println(livecast.getPlayer().toString());
-
+                LiveCast livecast = LiveCast.createLiveCast(game, player, currentText);
+                System.out.println(livecast.getPlayer());
             } catch (NoSuchElementException e) {
 
             }
 
         });
 
-    }
-
-    private LiveCast createLiveCast(Game game, Player player, List<String> currentText) {
-        return LiveCast.builder()
-                .game(game)
-                .currentText(currentText)
-                .player(player)
-                .build();
     }
 }

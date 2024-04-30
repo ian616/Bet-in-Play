@@ -3,8 +3,10 @@ package com.microbet.global.config;
 
 import org.openqa.selenium.WebDriver;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.microbet.domain.game.service.GameService;
+import com.microbet.domain.game.service.LiveCastService;
 import com.microbet.domain.game.service.ScoreBoardService;
 import com.microbet.domain.game.service.TeamService;
 import com.microbet.global.common.WebDriverUtil;
@@ -19,6 +21,7 @@ public class MyConfiguration {
 
     private final TeamService teamService;
     private final GameService gameService;
+    private final LiveCastService liveCastService;
 
     @PostConstruct
     public void init() {
@@ -30,6 +33,9 @@ public class MyConfiguration {
         gameService.scrapGameInfo();
         System.out.println("...game information scrapped successfully.");
         System.out.println("...scrapping complete.");
+        System.out.println("start casting...");
+        liveCastService.scrapePeriodically();
+        System.out.println("casting cycle done.");
     }
 
     @PreDestroy
