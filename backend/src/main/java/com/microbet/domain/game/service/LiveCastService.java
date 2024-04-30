@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Service;
@@ -37,19 +38,64 @@ public class LiveCastService {
         driver.get(baseURL);
 
         WebElement inningTab = driver.findElement(By.xpath("//ul[contains(@class,'list_inning')]"));
-        WebElement currentInningElement = inningTab.findElement(By.xpath(".//li[@class='on']/a[contains(@class,'#inning')]"));
+        WebElement currentInningElement = inningTab
+                .findElement(By.xpath(".//li[@class='on']/a[contains(@class,'#inning')]"));
 
-        
         int currentInning = Character.getNumericValue(currentInningElement.getText().charAt(0));
-        
-        List<WebElement> inningCastTextElements = driver.findElements(By.xpath(String.format("//div[@class='sms_list ' and @data-inning='%d']", currentInning)));
-        inningCastTextElements.forEach((inning)->{
-            List<WebElement> pureCastTextElements = inning.findElements(By.xpath(".//em[@class='sms_word ']"));
-            List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
+
+        List<WebElement> playerCastTextElement = driver
+                .findElements(By.xpath(String.format(
+                        "//div[@class='sms_list ' and @data-inning='%d']/div[@class='item_sms ']", currentInning)));
+
+        playerCastTextElement.forEach((playerCast) -> {
+            // 플레이어 정보 스크래핑
+            try {
+                WebElement playerElement = playerCast.findElement(By.xpath(".//div[@class='info_player']"));
+                WebElement playerTextElement = playerElement.findElement(By.xpath(".//div[@class='cont_info']"));
+                WebElement playerImageElement = playerElement
+                        .findElement(By.xpath(".//span[contains(@class, 'thumb_round')]/img"));
+
+                String playerImageURL = playerImageElement.getAttribute("src");
+
+                String playerText = playerTextElement.getText();
+                String pattern = "^(.*?) (\\d+)번타자 \\(No\\.(\\d+)\\)$";
+
+                Pattern regex = Pattern.compile(pattern);
+                Matcher matcher = regex.matcher(playerText);
+
+      
+                String name = matcher.group(1);
+                int battingOrder = Integer.parseInt(matcher.group(2));
+                int backNumber = Integer.parseInt(matcher.group(3));
+
+                Player player = Player.builder()
+                                    .name(name)
+                                    .battingOrder(battingOrder)
+                                    .backNumber(backNumber)
+                                    .playerImageURL(playerImageURL)
+                                    .build();
+                // 문자 중계 스크래핑
+                List<WebElement> pureCastTextElements = playerCast
+                        .findElements(By.xpath(".//em[@class='sms_word ']"));
+                List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
+                LiveCast livecast = createLiveCast(game, player, currentText);
+
+                System.out.println(livecast.getCurrentText());
+                System.out.println(livecast.getPlayer().toString());
+
+            } catch (NoSuchElementException e) {
+
+            }
+
         });
+
     }
 
-    private void createLiveCast(Game game, Player player, List<String> currentText){
-
+    private LiveCast createLiveCast(Game game, Player player, List<String> currentText) {
+        return LiveCast.builder()
+                .game(game)
+                .currentText(currentText)
+                .player(player)
+                .build();
     }
 }
