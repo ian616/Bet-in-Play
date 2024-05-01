@@ -1,5 +1,6 @@
 package com.microbet.domain.game.service;
 
+import org.openqa.selenium.WebDriver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import com.microbet.domain.game.enums.TeamName;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.ScoreBoardRepository;
 import com.microbet.domain.game.repository.TeamRepository;
+import com.microbet.global.common.WebDriverUtil;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -82,13 +84,10 @@ public class GameService {
             List<HtmlElement> gameList = page.getByXPath(xpathExpr);
 
             gameList.forEach((item) -> {
-                Long gameId = gameRepository.save(createGame(item));
-                // TEST: 시간 문제때문에 일단 하나만 스크랩하는걸로 테스트. 추후 복원하면 됨.
-                // scoreBoardService.scrapScoreBoardInfo(gameId);
+                Long id = gameRepository.save(createGame(item));
+                
+                scoreBoardService.scrapScoreBoardInfo(id);
             });
-            
-            // TEST: 임시로 0번 게임만 가져와서 전광판 정보 스크랩. 추후 삭제하면 됨.
-            // scoreBoardService.scrapScoreBoardInfo(1L);
 
             webClient.close();
         } catch (IOException e) {

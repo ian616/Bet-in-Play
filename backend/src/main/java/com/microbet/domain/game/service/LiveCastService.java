@@ -8,6 +8,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class LiveCastService {
 
     private final GameRepository gameRepository;
-    private final TeamRepository teamRepository;
 
-    @Scheduled(fixedRate = 5000)
     public void scrapePeriodically() {
         WebDriver driver = WebDriverUtil.getChromeDriver();
         driver.navigate().refresh();
@@ -94,6 +94,8 @@ public class LiveCastService {
                         .findElements(By.xpath(".//em[@class='sms_word ']"));
                 List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
                 LiveCast livecast = LiveCast.createLiveCast(game, player, currentText);
+                
+                System.out.println(livecast.getCurrentText());
                 System.out.println(livecast.getPlayer());
             } catch (NoSuchElementException e) {
 

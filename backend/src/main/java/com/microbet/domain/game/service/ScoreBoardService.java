@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,23 +27,32 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@EnableAsync
 public class ScoreBoardService {
     private final GameRepository gameRepository;
     private final ScoreBoardRepository scoreBoardRepository;
 
     @Transactional
+    @Async
     public void scrapScoreBoardInfo(Long id) {
-
+        System.out.println(String.format("scoreboard%d start...", id));
         Game game = gameRepository.findById(id);
 
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
+        
         WebDriver driver = WebDriverUtil.getChromeDriver();
 
+        // 하나의 탭을 더 열어서 async로 작동 
+        ((ChromeDriver) driver).executeScript("window.open()");
+        List<String> tabs = new ArrayList<>(driver.getWindowHandles());
+        String lastTab = tabs.get(tabs.size() - 1);
+        driver.switchTo().window(lastTab);
         driver.get(baseURL);
 
         List<WebElement> tables = driver.findElements(By.xpath("//table[contains(@class, 'tbl_score')]/tbody"));
 
         scoreBoardRepository.save(createScoreBoard(tables.get(0), tables.get(1), game));
+        System.out.println(String.format("scoreboard%d done.", id));
     }
 
     private ScoreBoard createScoreBoard(WebElement scoreTable, WebElement infoTable, Game game) {

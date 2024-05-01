@@ -33,9 +33,7 @@ public class MyConfiguration {
         gameService.scrapGameInfo();
         System.out.println("...game information scrapped successfully.");
         System.out.println("...scrapping complete.");
-        System.out.println("start casting...");
-        liveCastService.scrapePeriodically();
-        System.out.println("casting cycle done.");
+        // liveCastService.scrapePeriodically();
     }
 
     @PreDestroy
