@@ -87,7 +87,7 @@ public class GameService {
                 Game game = createGame(item);
                 gameRepository.save(game);
                 
-                scoreBoardService.scrapScoreBoardInfo(game);
+                // scoreBoardService.scrapScoreBoardInfo(game);
             });
 
             webClient.close();
@@ -160,6 +160,5 @@ public class GameService {
                 .location(location)
                 .broadcasting(broadcasting)
                 .build();
-
     }
 }
