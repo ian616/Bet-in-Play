@@ -35,9 +35,4 @@ public class MyConfiguration {
         System.out.println("...scrapping complete.");
         // liveCastService.scrapePeriodically();
     }
-
-    @PreDestroy
-    public void onDestroy() {
-        WebDriverUtil.quit();
-    }
 }

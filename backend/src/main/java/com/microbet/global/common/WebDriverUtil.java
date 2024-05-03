@@ -15,11 +15,9 @@ import jakarta.annotation.PreDestroy;
 
 @Component
 public class WebDriverUtil {
-    private static WebDriver driver;
     private final static String WEB_DRIVER_PATH = "/usr/local/bin/chromedriver"; // WebDriver 경로
 
-    @PostConstruct
-    public void init(){
+    public static WebDriver getChromeDriver() {
         if (ObjectUtils.isEmpty(System.getProperty("webdriver.chrome.driver"))) {
             System.setProperty("webdriver.chrome.driver", WEB_DRIVER_PATH);
         }
@@ -32,25 +30,6 @@ public class WebDriverUtil {
         options.addArguments("--disable-dev-shm-usage");
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
 
-        driver = new ChromeDriver(options);
-        // driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
-    }
-
-    public static WebDriver getChromeDriver() {
-        return driver;
-    }
-
-    public static void quit() {
-        if (!ObjectUtils.isEmpty(driver)) {
-            System.out.println("Shutdown Webdriver...");
-            driver.quit();
-        }
-    }
-
-    public static void close() {
-        if (!ObjectUtils.isEmpty(driver)) {
-            System.out.println("Close Webdriver...");
-            driver.close();
-        }
+        return new ChromeDriver(options);
     }
 }

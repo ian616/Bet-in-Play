@@ -34,25 +34,17 @@ public class ScoreBoardService {
 
     @Transactional
     @Async
-    public void scrapScoreBoardInfo(Long id) {
-        System.out.println(String.format("scoreboard%d start...", id));
-        Game game = gameRepository.findById(id);
+    public void scrapScoreBoardInfo(Game game) {
 
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
         
         WebDriver driver = WebDriverUtil.getChromeDriver();
-
-        // 하나의 탭을 더 열어서 async로 작동 
-        ((ChromeDriver) driver).executeScript("window.open()");
-        List<String> tabs = new ArrayList<>(driver.getWindowHandles());
-        String lastTab = tabs.get(tabs.size() - 1);
-        driver.switchTo().window(lastTab);
         driver.get(baseURL);
 
         List<WebElement> tables = driver.findElements(By.xpath("//table[contains(@class, 'tbl_score')]/tbody"));
 
         scoreBoardRepository.save(createScoreBoard(tables.get(0), tables.get(1), game));
-        System.out.println(String.format("scoreboard%d done.", id));
+        driver.quit();
     }
 
     private ScoreBoard createScoreBoard(WebElement scoreTable, WebElement infoTable, Game game) {

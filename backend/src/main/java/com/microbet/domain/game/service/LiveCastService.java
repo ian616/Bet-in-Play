@@ -59,48 +59,44 @@ public class LiveCastService {
 
         playerCastTextElement.forEach((playerCast) -> {
             // 플레이어 정보 스크래핑
-            try {
-                WebElement playerElement = playerCast.findElement(By.xpath(".//div[@class='info_player']"));
-                WebElement playerTextElement = playerElement.findElement(By.xpath(".//div[@class='cont_info']"));
-                WebElement playerImageElement = playerElement
-                        .findElement(By.xpath(".//span[contains(@class, 'thumb_round')]/img"));
+            WebElement playerElement = playerCast.findElement(By.xpath(".//div[@class='info_player']"));
+            WebElement playerTextElement = playerElement.findElement(By.xpath(".//div[@class='cont_info']"));
+            WebElement playerImageElement = playerElement
+                    .findElement(By.xpath(".//span[contains(@class, 'thumb_round')]/img"));
 
-                String playerImageURL = playerImageElement.getAttribute("src");
+            String playerImageURL = playerImageElement.getAttribute("src");
 
-                String playerText = playerTextElement.getText();
+            String playerText = playerTextElement.getText();
 
-                String pattern = "^(.*?)\\n(\\d+)번타자 \\(No\\.(\\d+)\\)$";
+            String pattern = "^(.*?)\\n(\\d+)번타자 \\(No\\.(\\d+)\\)$";
 
-                Pattern regex = Pattern.compile(pattern);
-                Matcher matcher = regex.matcher(playerText);
+            Pattern regex = Pattern.compile(pattern);
+            Matcher matcher = regex.matcher(playerText);
 
-                Player player = null;
+            Player player = null;
 
-                if (matcher.matches()) {
+            if (matcher.matches()) {
 
-                    String name = matcher.group(1);
-                    int battingOrder = Integer.parseInt(matcher.group(2));
-                    int backNumber = Integer.parseInt(matcher.group(3));
+                String name = matcher.group(1);
+                int battingOrder = Integer.parseInt(matcher.group(2));
+                int backNumber = Integer.parseInt(matcher.group(3));
 
-                    player = Player.builder()
-                            .name(name)
-                            .battingOrder(battingOrder)
-                            .backNumber(backNumber)
-                            .playerImageURL(playerImageURL)
-                            .build();
-                }
-                // 문자 중계 스크래핑
-                List<WebElement> pureCastTextElements = playerCast
-                        .findElements(By.xpath(".//em[@class='sms_word ']"));
-                List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
-                LiveCast livecast = LiveCast.createLiveCast(game, player, currentText);
-                
-                System.out.println(livecast.getCurrentText());
-                System.out.println(livecast.getPlayer());
-            } catch (NoSuchElementException e) {
-
+                player = Player.builder()
+                        .name(name)
+                        .battingOrder(battingOrder)
+                        .backNumber(backNumber)
+                        .playerImageURL(playerImageURL)
+                        .build();
             }
+            // 문자 중계 스크래핑
+            List<WebElement> pureCastTextElements = playerCast
+                    .findElements(By.xpath(".//em[@class='sms_word ']"));
+            List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
+            LiveCast livecast = LiveCast.createLiveCast(game, player, currentText);
 
+            System.out.println(livecast.getCurrentText());
+            System.out.println(livecast.getPlayer());
+            driver.quit();
         });
 
     }

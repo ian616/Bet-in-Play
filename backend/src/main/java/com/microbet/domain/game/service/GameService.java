@@ -63,7 +63,7 @@ public class GameService {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
-        LocalDate currentDate = LocalDate.now();
+        LocalDate currentDate = LocalDate.now().minusDays(1);
 
         // 달까지만 표시하는 형식
         DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("yyyyMM");
@@ -84,9 +84,10 @@ public class GameService {
             List<HtmlElement> gameList = page.getByXPath(xpathExpr);
 
             gameList.forEach((item) -> {
-                Long id = gameRepository.save(createGame(item));
+                Game game = createGame(item);
+                gameRepository.save(game);
                 
-                scoreBoardService.scrapScoreBoardInfo(id);
+                scoreBoardService.scrapScoreBoardInfo(game);
             });
 
             webClient.close();
