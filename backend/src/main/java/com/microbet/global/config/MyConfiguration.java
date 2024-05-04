@@ -33,5 +33,7 @@ public class MyConfiguration {
         gameService.scrapGameInfo();
         System.out.println("...game information scrapped successfully.");
         System.out.println("...scrapping complete.");
+        liveCastService.initDriver(1L);
+        liveCastService.scrapePeriodically();
     }
 }

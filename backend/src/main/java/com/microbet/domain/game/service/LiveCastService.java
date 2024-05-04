@@ -9,6 +9,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,37 +24,41 @@ import com.microbet.domain.game.embeddable.Player;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.TeamRepository;
 import com.microbet.global.common.WebDriverUtil;
-
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@EnableScheduling
+@EnableAsync
 public class LiveCastService {
 
     private final GameRepository gameRepository;
     private WebDriver driver = WebDriverUtil.getChromeDriver();
+    private Game game;
 
-    @Scheduled(fixedDelay = 1000)
+    @Async
     public void scrapePeriodically() {
-        System.out.println("scrapping casting text periodically...");
-        scrapLiveCast(5L);
-        System.out.println("scrapping casting done.");
-        driver.navigate().refresh();
+        while(true){
+            System.out.println("scrapping casting text periodically...");
+            driver.navigate().refresh();
+            scrapLiveCast();
+            System.out.println("scrapping casting done.");
+        }
     }
 
     public void stopScrapping() {
         driver.quit();
     }
 
-    @Transactional
-    public void scrapLiveCast(Long id) {
-        Game game = gameRepository.findById(id);
-
+    public void initDriver(Long id) {
+        game = gameRepository.findById(id);
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
-
         driver.get(baseURL);
+    }
+
+    @Transactional
+    public void scrapLiveCast() {
 
         WebElement inningTab = driver.findElement(By.xpath("//ul[contains(@class,'list_inning')]"));
         WebElement currentInningElement = inningTab
