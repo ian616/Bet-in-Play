@@ -28,6 +28,7 @@ public class WebDriverUtil {
         options.addArguments("--no-sandbox");
         options.addArguments("--single-process");
         options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-cache");
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
 
         return new ChromeDriver(options);

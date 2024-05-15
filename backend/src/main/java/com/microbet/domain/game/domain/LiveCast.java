@@ -43,9 +43,8 @@ public class LiveCast {
     private List<String> currentText;
 
     //===생성 메서드===//
-    public static LiveCast createLiveCast(Game game, Player player, List<String> currentText) {
+    public static LiveCast createLiveCast(Player player, List<String> currentText) {
         return LiveCast.builder()
-                .game(game)
                 .currentText(currentText)
                 .player(player)
                 .build();

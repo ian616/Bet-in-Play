@@ -1,6 +1,7 @@
 package com.microbet.domain.game.service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -20,41 +23,41 @@ import com.microbet.domain.game.domain.Game;
 import com.microbet.domain.game.domain.LiveCast;
 import com.microbet.domain.game.embeddable.Player;
 import com.microbet.domain.game.repository.GameRepository;
+import com.microbet.domain.game.repository.LiveCastRepository;
 import com.microbet.domain.game.repository.TeamRepository;
 import com.microbet.global.common.WebDriverUtil;
-
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @EnableScheduling
 public class LiveCastService {
 
     private final GameRepository gameRepository;
-    private WebDriver driver = WebDriverUtil.getChromeDriver();
+    private final LiveCastRepository liveCastRepository;
+    private Game game;
+    private WebDriver driver;
 
-    @Scheduled(fixedDelay = 1000)
+    public void initLiveCast(){
+        driver = WebDriverUtil.getChromeDriver(); 
+        game = gameRepository.findById(3L);
+        String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
+        driver.get(baseURL);
+    }
+
+    @Scheduled(fixedDelay = 5000)
     public void scrapePeriodically() {
         System.out.println("scrapping casting text periodically...");
-        scrapLiveCast(5L);
+        scrapLiveCast(); // 새로운 WebDriver 객체를 scrapLiveCast 메서드에 전달
         System.out.println("scrapping casting done.");
-        driver.navigate().refresh();
     }
 
-    public void stopScrapping() {
-        driver.quit();
-    }
-
-    @Transactional
-    public void scrapLiveCast(Long id) {
-        Game game = gameRepository.findById(id);
-
-        String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
-
-        driver.get(baseURL);
-
-        WebElement inningTab = driver.findElement(By.xpath("//ul[contains(@class,'list_inning')]"));
+    public void scrapLiveCast() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // 최대 대기 시간 10초
+        WebElement inningTab = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//ul[contains(@class,'list_inning')]")));
         WebElement currentInningElement = inningTab
                 .findElement(By.xpath(".//li[@class='on']/a[contains(@class,'#inning')]"));
 
@@ -62,7 +65,7 @@ public class LiveCastService {
 
         List<WebElement> playerCastTextElement = driver
                 .findElements(By.xpath(String.format(
-                        "//div[@class='sms_list ' and @data-inning='%d']/div[@class='item_sms ']", currentInning)));
+                        "//div[@class='sms_list ' and @data-inning='%d']/div[contains(@class, 'item_sms')]", currentInning)));
 
         playerCastTextElement.forEach((playerCast) -> {
             // 플레이어 정보 스크래핑
@@ -101,13 +104,15 @@ public class LiveCastService {
                 List<WebElement> pureCastTextElements = playerCast
                         .findElements(By.xpath(".//em[@class='sms_word ']"));
                 List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
-                LiveCast livecast = LiveCast.createLiveCast(game, player, currentText);
+                LiveCast livecast = LiveCast.createLiveCast(player, currentText);
+                game.addLiveCast(livecast);
 
                 System.out.println(livecast.getCurrentText());
-                // System.out.println(livecast.getPlayer());
+                // liveCastRepository.save(livecast);
             } catch (NoSuchElementException e) {
 
             }
+
         });
 
     }

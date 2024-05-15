@@ -26,6 +26,5 @@ public class GameApiController {
     
     @GetMapping("/api/v1/game/{id}")
     public void getLiveCast(@PathVariable("id") Long id){
-        liveCastService.scrapLiveCast(id);
     }
 }

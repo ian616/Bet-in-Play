@@ -4,10 +4,12 @@ import java.util.List;
 
 import com.microbet.domain.game.enums.GameState;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -60,6 +62,12 @@ public class Game {
     private ScoreBoard scoreBoard;
 
     // ===라이브 캐스트===//
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<LiveCast> liveCasts;
+
+    // ==연관관계 메서드==//
+    public void addLiveCast(LiveCast liveCast) {
+        liveCasts.add(liveCast);
+        liveCast.setGame(this);
+    }
 }
