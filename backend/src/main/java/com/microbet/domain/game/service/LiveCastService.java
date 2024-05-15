@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@EnableAsync
+@EnableScheduling
 public class LiveCastService {
 
     private final GameRepository gameRepository;
