@@ -14,6 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
+    private int playerId;
     private String name;
     private int battingOrder;
     private int backNumber;
