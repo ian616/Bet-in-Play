@@ -1,5 +1,6 @@
 package com.microbet.domain.game.domain;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.microbet.domain.game.embeddable.Player;
@@ -42,11 +43,14 @@ public class LiveCast {
 
     private List<String> currentText;
 
+    private LocalDateTime lastUpdated;
+
     //===생성 메서드===//
-    public static LiveCast createLiveCast(Player player, List<String> currentText) {
+    public static LiveCast createLiveCast(Player player, List<String> currentText, LocalDateTime lastUpdated) {
         return LiveCast.builder()
                 .currentText(currentText)
                 .player(player)
+                .lastUpdated(lastUpdated)
                 .build();
     }
 }

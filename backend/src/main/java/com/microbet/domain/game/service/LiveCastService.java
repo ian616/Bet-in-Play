@@ -27,6 +27,8 @@ import com.microbet.domain.game.repository.LiveCastRepository;
 import com.microbet.domain.game.repository.TeamRepository;
 import com.microbet.global.common.WebDriverUtil;
 import java.time.Duration;
+import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -39,6 +41,10 @@ public class LiveCastService {
     private final LiveCastRepository liveCastRepository;
     private Game game;
     private WebDriver driver;
+
+    public List<LiveCast> findLiveCasts(){
+        return liveCastRepository.findAll();
+    }
 
     public void initLiveCast(){
         driver = WebDriverUtil.getChromeDriver(); 
@@ -77,6 +83,17 @@ public class LiveCastService {
 
                 String playerImageURL = playerImageElement.getAttribute("src");
 
+                String pattern_url = "(\\d+)\\.jpg";
+
+                Pattern regex_url = Pattern.compile(pattern_url);
+                Matcher matcher_url = regex_url.matcher(playerImageURL);
+
+                int playerId = 0;
+        
+                if (matcher_url.find()) {
+                    playerId = Integer.parseInt(matcher_url.group(1));
+                }
+
                 String playerText = playerTextElement.getText();
 
                 String pattern = "^(.*?)\\n(\\d+)번타자 \\(No\\.(\\d+)\\)$";
@@ -93,6 +110,7 @@ public class LiveCastService {
                     int backNumber = Integer.parseInt(matcher.group(3));
 
                     player = Player.builder()
+                            .playerId(playerId)
                             .name(name)
                             .battingOrder(battingOrder)
                             .backNumber(backNumber)
@@ -104,13 +122,14 @@ public class LiveCastService {
                 List<WebElement> pureCastTextElements = playerCast
                         .findElements(By.xpath(".//em[@class='sms_word ']"));
                 List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
-                LiveCast livecast = LiveCast.createLiveCast(player, currentText);
+                LiveCast livecast = LiveCast.createLiveCast(player, currentText, LocalDateTime.now());
                 game.addLiveCast(livecast);
 
                 System.out.println(livecast.getCurrentText());
-                // liveCastRepository.save(livecast);
+                System.out.println(livecast.getLastUpdated());
+                liveCastRepository.save(livecast);
             } catch (NoSuchElementException e) {
-
+                
             }
 
         });
