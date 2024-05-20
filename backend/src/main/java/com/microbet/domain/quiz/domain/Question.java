@@ -20,13 +20,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
+@RequiredArgsConstructor
 @AllArgsConstructor
 public class Question {
 
@@ -35,7 +36,7 @@ public class Question {
     @Column(name = "question_id")
     private Long id;
 
-    private String content;
+    private final String content;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AnswerOption> answerOptions; // 질문에 대한 답변 보기들

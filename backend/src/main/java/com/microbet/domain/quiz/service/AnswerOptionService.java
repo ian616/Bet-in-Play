@@ -15,7 +15,8 @@ import lombok.RequiredArgsConstructor;
 public class AnswerOptionService {
     private final AnswerOptionRepository answerOptionRepository;
 
-    public Long saveQuestion(AnswerOption answerOption) {
+    @Transactional
+    public Long saveAnswerOption(AnswerOption answerOption) {
         return answerOptionRepository.save(answerOption);
     }
 }

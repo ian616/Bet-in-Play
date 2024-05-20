@@ -2,8 +2,6 @@ package com.microbet.domain.quiz.domain;
 
 import java.util.List;
 
-import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
-
 import com.microbet.domain.game.enums.GameState;
 import com.microbet.domain.quiz.enums.AnswerStatus;
 
@@ -41,11 +39,18 @@ public class AnswerOption {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private AnswerStatus answerStatus; 
+    private AnswerStatus answerStatus;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question; // 해당 답변 보기의 질문
 
-    //===생성 메서드===//
+    // ===생성 메서드===//
+    public static AnswerOption createAnswerOption(String content, Question question) {
+        return AnswerOption.builder()
+                .content(content)
+                .answerStatus(AnswerStatus.PENDING)
+                .question(question)
+                .build();
+    }
 }

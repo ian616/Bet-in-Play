@@ -62,7 +62,7 @@ public class Game {
     private ScoreBoard scoreBoard;
 
     // ===라이브 캐스트===//
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<LiveCast> liveCasts;
 
     // ==연관관계 메서드==//
