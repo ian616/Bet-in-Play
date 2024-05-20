@@ -25,6 +25,7 @@ public class MyConfiguration {
 
     @PostConstruct
     public void init() {
+        // 게임 정보 초기화
         System.out.println("start scrapping...");
         System.out.println("scrapping team information...");
         teamService.scrapTeamInfo();

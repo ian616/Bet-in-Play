@@ -73,6 +73,9 @@ public class LiveCastService {
                 .findElements(By.xpath(String.format(
                         "//div[@class='sms_list ' and @data-inning='%d']/div[contains(@class, 'item_sms')]", currentInning)));
 
+        // 정보 업데이트 전 테이블 초기화
+        liveCastRepository.deleteAllEntities();
+
         playerCastTextElement.forEach((playerCast) -> {
             // 플레이어 정보 스크래핑
             try {

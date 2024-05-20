@@ -32,4 +32,8 @@ public class LiveCastRepository {
                 .setParameter("id", id)
                 .getSingleResult();
     }
+
+    public void deleteAllEntities() {
+        em.createQuery("DELETE FROM LiveCast").executeUpdate();
+    }
 }
