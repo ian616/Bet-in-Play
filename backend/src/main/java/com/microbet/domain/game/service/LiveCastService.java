@@ -25,6 +25,7 @@ import com.microbet.domain.game.embeddable.Player;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.LiveCastRepository;
 import com.microbet.domain.game.repository.TeamRepository;
+import com.microbet.domain.quiz.service.QuestionService;
 import com.microbet.global.common.WebDriverUtil;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -39,6 +40,9 @@ public class LiveCastService {
 
     private final GameRepository gameRepository;
     private final LiveCastRepository liveCastRepository;
+
+    private final QuestionService questionService;
+
     private Game game;
     private WebDriver driver;
 
@@ -131,6 +135,12 @@ public class LiveCastService {
                 System.out.println(livecast.getCurrentText());
                 System.out.println(livecast.getLastUpdated());
                 liveCastRepository.save(livecast);
+
+
+                // TODO: api로 질문생성 쏴서 그 순간의 livecast id 1번인것 가져와서 question 생성하고 테스트해보기
+                
+                questionService.checkAnswer();
+
             } catch (NoSuchElementException e) {
                 
             }

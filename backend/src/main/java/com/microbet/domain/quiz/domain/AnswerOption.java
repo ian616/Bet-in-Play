@@ -47,6 +47,7 @@ public class AnswerOption {
 
     // ===생성 메서드===//
     public static AnswerOption createAnswerOption(String content, Question question) {
+        
         return AnswerOption.builder()
                 .content(content)
                 .answerStatus(AnswerStatus.PENDING)

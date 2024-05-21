@@ -64,7 +64,7 @@ public class GameService {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
         // 경기 날짜 
-        LocalDate currentDate = LocalDate.now().minusDays(1);
+        LocalDate currentDate = LocalDate.now();
 
         // 달까지만 표시하는 형식
         DateTimeFormatter formatter_month = DateTimeFormatter.ofPattern("yyyyMM");
