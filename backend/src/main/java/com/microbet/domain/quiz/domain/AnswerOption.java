@@ -2,6 +2,7 @@ package com.microbet.domain.quiz.domain;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.microbet.domain.game.enums.GameState;
 import com.microbet.domain.quiz.enums.AnswerStatus;
 
@@ -41,17 +42,28 @@ public class AnswerOption {
     @Enumerated(EnumType.STRING)
     private AnswerStatus answerStatus;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "question_id")
     private Question question; // 해당 답변 보기의 질문
 
+    //=== 연관관계 메서드===//
+    public void setQuestion(Question question){
+        this.question = question;
+        question.getAnswerOptions().add(this);
+    }
+
     // ===생성 메서드===//
     public static AnswerOption createAnswerOption(String content, Question question) {
         
-        return AnswerOption.builder()
+        AnswerOption answerOption = AnswerOption.builder()
                 .content(content)
                 .answerStatus(AnswerStatus.PENDING)
                 .question(question)
                 .build();
+
+        answerOption.setQuestion(question);
+
+        return answerOption;
     }
 }

@@ -1,7 +1,9 @@
 package com.microbet.domain.quiz.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.microbet.domain.game.domain.LiveCast;
 import com.microbet.domain.game.enums.GameState;
 
@@ -44,6 +46,8 @@ public class Question {
     @JoinColumn(name = "live_cast_id")
     private LiveCast liveCast;
     
+    @Builder.Default
+    @JsonManagedReference
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AnswerOption> answerOptions; // 질문에 대한 답변 보기들
+    private List<AnswerOption> answerOptions = new ArrayList<>(); // 질문에 대한 답변 보기들
 }

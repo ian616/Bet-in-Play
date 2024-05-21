@@ -36,7 +36,6 @@ public class QuestionService {
                                     .liveCast(null)
                                     .build();
 
-        
         List<String> answerOptions = List.of("안타", "2루타", "삼진", "땅볼");
 
         saveQuestion(question);
