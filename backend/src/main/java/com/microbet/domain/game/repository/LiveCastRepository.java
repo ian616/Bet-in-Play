@@ -9,6 +9,7 @@ import com.microbet.domain.game.domain.Game;
 import com.microbet.domain.game.domain.LiveCast;
 import com.microbet.domain.game.domain.ScoreBoard;
 import com.microbet.domain.game.domain.Team;
+import com.microbet.domain.game.embeddable.Player;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -32,6 +33,14 @@ public class LiveCastRepository {
     public Optional<LiveCast> findById(Long id) {
         LiveCast liveCast = em.find(LiveCast.class, id);
         return Optional.ofNullable(liveCast);
+    }
+
+    public Optional<LiveCast> findByPlayer(Player player) {
+        String jpql = "SELECT lc FROM LiveCast lc WHERE lc.player = :player";
+        TypedQuery<LiveCast> query = em.createQuery(jpql, LiveCast.class);
+        query.setParameter("player", player);
+        List<LiveCast> result = query.getResultList();
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     public Optional<LiveCast> findByCurrentText(List<String> currentText) {

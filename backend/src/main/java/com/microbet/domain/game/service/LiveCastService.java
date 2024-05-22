@@ -52,10 +52,18 @@ public class LiveCastService {
         return liveCastRepository.findAll();
     }
 
+    // TODO: player가 겹치는 경우에 대한 테스트 
     public void saveLiveCasts(LiveCast liveCast){
-        List<String> currentText = liveCast.getCurrentText();
-        Optional<LiveCast> existingLiveCast = liveCastRepository.findByCurrentText(currentText);
-        if (existingLiveCast.isEmpty()) {
+        Optional<LiveCast> optionalExistingLiveCast = liveCastRepository.findByPlayer(liveCast.getPlayer());
+        if (optionalExistingLiveCast.isPresent()) {
+            LiveCast existingLiveCast = optionalExistingLiveCast.get();
+            if (!liveCast.getCurrentText().equals(existingLiveCast.getCurrentText())) {
+                // If currentText is different, update the existing LiveCast
+                existingLiveCast.setCurrentText(liveCast.getCurrentText());
+                existingLiveCast.setLastUpdated(LocalDateTime.now());
+                liveCastRepository.save(existingLiveCast);
+            }
+        } else {
             liveCastRepository.save(liveCast);
         }
     }
