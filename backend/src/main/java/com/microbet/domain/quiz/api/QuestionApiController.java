@@ -23,7 +23,7 @@ public class QuestionApiController {
     @GetMapping("/api/v1/question")
     public Question getGeneratedQuestion() {
         questionService.generateQuestion();
-        return questionService.findQuestion();
+        return questionService.findQuestion(1L);
     }
 
 }

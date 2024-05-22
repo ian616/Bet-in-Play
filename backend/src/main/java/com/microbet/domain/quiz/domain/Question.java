@@ -40,11 +40,6 @@ public class Question {
     private Long id;
 
     private String content;
-
-    //현재 질문이 만들어질 때의 중계상황 저장
-    @ManyToOne
-    @JoinColumn(name = "live_cast_id")
-    private LiveCast liveCast;
     
     @Builder.Default
     @JsonManagedReference

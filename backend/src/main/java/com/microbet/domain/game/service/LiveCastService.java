@@ -1,6 +1,7 @@
 package com.microbet.domain.game.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +26,7 @@ import com.microbet.domain.game.embeddable.Player;
 import com.microbet.domain.game.repository.GameRepository;
 import com.microbet.domain.game.repository.LiveCastRepository;
 import com.microbet.domain.game.repository.TeamRepository;
+import com.microbet.domain.quiz.domain.Question;
 import com.microbet.domain.quiz.service.QuestionService;
 import com.microbet.global.common.WebDriverUtil;
 import java.time.Duration;
@@ -46,12 +48,20 @@ public class LiveCastService {
     private Game game;
     private WebDriver driver;
 
-    public List<LiveCast> findLiveCasts(){
+    public List<LiveCast> findLiveCasts() {
         return liveCastRepository.findAll();
     }
 
-    public void initLiveCast(){
-        driver = WebDriverUtil.getChromeDriver(); 
+    public void saveLiveCasts(LiveCast liveCast){
+        List<String> currentText = liveCast.getCurrentText();
+        Optional<LiveCast> existingLiveCast = liveCastRepository.findByCurrentText(currentText);
+        if (existingLiveCast.isEmpty()) {
+            liveCastRepository.save(liveCast);
+        }
+    }
+
+    public void initLiveCast() {
+        driver = WebDriverUtil.getChromeDriver();
         game = gameRepository.findById(3L);
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
         driver.get(baseURL);
@@ -61,6 +71,7 @@ public class LiveCastService {
     public void scrapePeriodically() {
         System.out.println("scrapping casting text periodically...");
         scrapLiveCast(); // 새로운 WebDriver 객체를 scrapLiveCast 메서드에 전달
+        questionService.checkAnswer(1L);
         System.out.println("scrapping casting done.");
     }
 
@@ -75,10 +86,8 @@ public class LiveCastService {
 
         List<WebElement> playerCastTextElement = driver
                 .findElements(By.xpath(String.format(
-                        "//div[@class='sms_list ' and @data-inning='%d']/div[contains(@class, 'item_sms')]", currentInning)));
-
-        // 정보 업데이트 전 테이블 초기화
-        liveCastRepository.deleteAllEntities();
+                        "//div[@class='sms_list ' and @data-inning='%d']/div[contains(@class, 'item_sms')]",
+                        currentInning)));
 
         playerCastTextElement.forEach((playerCast) -> {
             // 플레이어 정보 스크래핑
@@ -96,7 +105,7 @@ public class LiveCastService {
                 Matcher matcher_url = regex_url.matcher(playerImageURL);
 
                 int playerId = 0;
-        
+
                 if (matcher_url.find()) {
                     playerId = Integer.parseInt(matcher_url.group(1));
                 }
@@ -129,23 +138,14 @@ public class LiveCastService {
                 List<WebElement> pureCastTextElements = playerCast
                         .findElements(By.xpath(".//em[@class='sms_word ']"));
                 List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
-                LiveCast livecast = LiveCast.createLiveCast(player, currentText, LocalDateTime.now());
-                game.addLiveCast(livecast);
+                LiveCast liveCast = LiveCast.createLiveCast(player, currentText, LocalDateTime.now());
+                game.addLiveCast(liveCast);
 
-                System.out.println(livecast.getCurrentText());
-                System.out.println(livecast.getLastUpdated());
-                liveCastRepository.save(livecast);
-
-
-                // TODO: api로 질문생성 쏴서 그 순간의 livecast id 1번인것 가져와서 question 생성하고 테스트해보기
-                
-                questionService.checkAnswer();
+                saveLiveCasts(liveCast);
 
             } catch (NoSuchElementException e) {
-                
+                // System.out.println("ㅎㅎ;;ㅋㅋ;;ㅈㅅ;;");
             }
-
         });
-
     }
 }

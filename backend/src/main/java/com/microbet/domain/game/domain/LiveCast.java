@@ -5,7 +5,9 @@ import java.util.List;
 
 import com.microbet.domain.game.embeddable.Player;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,6 +43,8 @@ public class LiveCast {
     @Embedded
     private Player player;
 
+    @ElementCollection
+    @CollectionTable(name = "live_cast_current_text", joinColumns = @JoinColumn(name = "live_cast_id"))
     private List<String> currentText;
 
     private LocalDateTime lastUpdated;

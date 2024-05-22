@@ -1,6 +1,7 @@
 package com.microbet.domain.game.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,7 @@ import com.microbet.domain.game.domain.ScoreBoard;
 import com.microbet.domain.game.domain.Team;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -27,10 +29,19 @@ public class LiveCastRepository {
                 .getResultList();
     }
 
-    public LiveCast findById(Long id) {
-        return em.createQuery("select m from LiveCast m where m.id = :id", LiveCast.class)
-                .setParameter("id", id)
-                .getSingleResult();
+    public Optional<LiveCast> findById(Long id) {
+        LiveCast liveCast = em.find(LiveCast.class, id);
+        return Optional.ofNullable(liveCast);
+    }
+
+    public Optional<LiveCast> findByCurrentText(List<String> currentText) {
+        String jpql = "SELECT lc FROM LiveCast lc JOIN lc.currentText ct WHERE ct IN :currentText GROUP BY lc HAVING COUNT(ct) = :textSize";
+        TypedQuery<LiveCast> query = em.createQuery(jpql, LiveCast.class);
+        query.setParameter("currentText", currentText);
+        query.setParameter("textSize", (long) currentText.size());
+
+        List<LiveCast> result = query.getResultList();
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     public void deleteAllEntities() {
