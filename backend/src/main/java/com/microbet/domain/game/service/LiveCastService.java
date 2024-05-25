@@ -70,7 +70,7 @@ public class LiveCastService {
 
     public void initLiveCast() {
         driver = WebDriverUtil.getChromeDriver();
-        game = gameRepository.findById(3L);
+        game = gameRepository.findById(4L);
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
         driver.get(baseURL);
     }

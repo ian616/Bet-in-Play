@@ -21,6 +21,7 @@ public class LiveCastDTO {
         private Game game;
         private Player player;
         private List<String> currentText;
+        private String playerResult;
 
         /* Entity -> DTO Response */
         public Response(LiveCast liveCast) {
@@ -28,6 +29,7 @@ public class LiveCastDTO {
             this.game = liveCast.getGame();
             this.player = liveCast.getPlayer();
             this.currentText = liveCast.getCurrentText();
+            this.playerResult = liveCast.getPlayerResult();
         }
 
         public LiveCast toEntity(){
@@ -36,6 +38,7 @@ public class LiveCastDTO {
                 .game(game)
                 .player(player)
                 .currentText(currentText)
+                .playerResult(playerResult)
                 .build();
         }
     }

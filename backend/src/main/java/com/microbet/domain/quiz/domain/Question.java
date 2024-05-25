@@ -41,8 +41,20 @@ public class Question {
 
     private String content;
     
+    private boolean isConfirmed;
+
     @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AnswerOption> answerOptions = new ArrayList<>(); // 질문에 대한 답변 보기들
+
+    //===정답 선택 로직===//
+    public void confirmAnswer(Long id){
+        for(AnswerOption answerOption: answerOptions){
+            if(answerOption.getId() == id){
+                answerOption.setAnswerStatus(true);
+            }
+        }
+        setConfirmed(true);
+    }
 }

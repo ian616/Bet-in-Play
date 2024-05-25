@@ -39,8 +39,7 @@ public class AnswerOption {
 
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    private AnswerStatus answerStatus;
+    private boolean answerStatus;
 
     @JsonBackReference
     @ManyToOne
@@ -58,7 +57,7 @@ public class AnswerOption {
         
         AnswerOption answerOption = AnswerOption.builder()
                 .content(content)
-                .answerStatus(AnswerStatus.PENDING)
+                .answerStatus(false)
                 .question(question)
                 .build();
 
