@@ -50,17 +50,23 @@ public class QuestionService {
     }
 
     public void checkAnswer(Long questionId) {
-        // TODO: api로 질문생성 쏴서 그 순간의 livecast id 1번인것 가져와서 question 생성하고 테스트해보기
-        // Question question = findQuestion(questionId);
-        LiveCast liveCast = liveCastRepository.findById(1L).orElseGet(()->null);
+        LiveCast liveCast = liveCastRepository.findById(2L).orElseGet(()->null);
         Question question = findQuestion(questionId).orElseGet(()->null);
+
         if ((question != null) && (!question.isConfirmed())) {
             if(liveCast.getPlayerResult() != null){
-                question.confirmAnswer(4L);
-                System.out.println("here!!!");
+                question.confirmAnswer(evaluateResultQ1(liveCast.getPlayerResult()));
             }else{
                 
             }
         }
+    }
+
+    private Long evaluateResultQ1(String playerResult){
+        //TODO: 어떻게 string에서 보기로 만들것인지 생각하기
+        if(playerResult.equals("볼넷")){
+            return 6L;
+        }
+        return 9L;
     }
 }

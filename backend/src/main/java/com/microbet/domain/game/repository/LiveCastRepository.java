@@ -36,11 +36,11 @@ public class LiveCastRepository {
     }
 
     public Optional<LiveCast> findByPlayer(Player player) {
-        String jpql = "SELECT lc FROM LiveCast lc WHERE lc.player = :player";
+        String jpql = "SELECT lc FROM LiveCast lc WHERE lc.player.playerId = :playerId";
         TypedQuery<LiveCast> query = em.createQuery(jpql, LiveCast.class);
-        query.setParameter("player", player);
-        List<LiveCast> result = query.getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+        query.setParameter("playerId", player.getPlayerId());
+
+        return query.getResultStream().findFirst();
     }
 
     public Optional<LiveCast> findByCurrentText(List<String> currentText) {

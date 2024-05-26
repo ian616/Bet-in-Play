@@ -55,25 +55,30 @@ public class LiveCast {
 
     private LocalDateTime lastUpdated;
 
-    //===생성 메서드===//
+    // ===생성 메서드===//
     public static LiveCast createLiveCast(Player player, List<String> currentText, LocalDateTime lastUpdated) {
 
-        return LiveCast.builder()
+        LiveCast liveCast = LiveCast.builder()
                 .currentText(currentText)
                 .player(player)
-                .playerResult(generatePlayerResult(currentText, player))
                 .lastUpdated(lastUpdated)
                 .build();
+
+        generatePlayerResult(liveCast);
+        return liveCast;
     }
 
-    public static String generatePlayerResult(List<String> currentText, Player player){
+    public static void generatePlayerResult(LiveCast liveCast) {
+        List<String> currentText = liveCast.getCurrentText();
+        Player player = liveCast.getPlayer();
+
         String patternString = String.format("%s : ([^:]+)", player.getName());
 
         Pattern pattern = Pattern.compile(patternString);
 
         String returnString = null;
-        
-        for(String text: currentText){
+
+        for (String text : currentText) {
             Matcher matcher = pattern.matcher(text);
 
             if (matcher.find()) {
@@ -81,6 +86,6 @@ public class LiveCast {
             }
         }
 
-        return returnString;
+        liveCast.setPlayerResult(returnString);
     }
 }

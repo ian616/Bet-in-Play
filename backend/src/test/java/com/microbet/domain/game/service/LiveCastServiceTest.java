@@ -50,8 +50,8 @@ public class LiveCastServiceTest {
                 .build();
 
         // 저장
-        liveCastService.saveLiveCasts(liveCast1);
-        liveCastService.saveLiveCasts(liveCast2);
+        liveCastService.saveLiveCast(liveCast1);
+        liveCastService.saveLiveCast(liveCast2);
         liveCastService.findLiveCasts().stream().forEach(liveCast -> {
             System.out.println("ya!!!");
             System.out.println(liveCast.getCurrentText());
