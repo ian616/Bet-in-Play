@@ -1,5 +1,6 @@
 package com.microbet.domain.game.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -52,23 +53,27 @@ public class LiveCastService {
         return liveCastRepository.findAll();
     }
 
+    // TODO: 새로 추가되는 타자들의 ID가 뒤에서부터 저장되는 문제 수정
     public void saveLiveCast(LiveCast liveCast){
         Optional<LiveCast> optionalExistingLiveCast = liveCastRepository.findByPlayer(liveCast.getPlayer());
         if (optionalExistingLiveCast.isPresent()) {
             LiveCast existingLiveCast = optionalExistingLiveCast.get();
             if (!liveCast.getCurrentText().equals(existingLiveCast.getCurrentText())) {
+                // 현재 타자의 currentText가 업데이트 될 때 
                 existingLiveCast.setCurrentText(liveCast.getCurrentText());
                 existingLiveCast.setLastUpdated(LocalDateTime.now());
                 LiveCast.generatePlayerResult(existingLiveCast);
+
             }
         } else {
+            // 새로운 타자 정보가 들어왔을 때
             liveCastRepository.save(liveCast);
         }
     }
 
     public void initLiveCast() {
         driver = WebDriverUtil.getChromeDriver();
-        game = gameRepository.findById(4L);
+        game = gameRepository.findById(1L);
         String baseURL = String.format("https://sports.daum.net/game/%d/cast", game.getDaumGameId());
         driver.get(baseURL);
     }
@@ -94,6 +99,8 @@ public class LiveCastService {
                 .findElements(By.xpath(String.format(
                         "//div[@class='sms_list ' and @data-inning='%d']/div[contains(@class, 'item_sms')]",
                         currentInning)));
+        
+        Collections.reverse(playerCastTextElement);
 
         playerCastTextElement.forEach((playerCast) -> {
             // 플레이어 정보 스크래핑
@@ -143,6 +150,9 @@ public class LiveCastService {
                 // 문자 중계 스크래핑
                 List<WebElement> pureCastTextElements = playerCast
                         .findElements(By.xpath(".//em[@class='sms_word ']"));
+
+                Collections.reverse(pureCastTextElements);
+
                 List<String> currentText = pureCastTextElements.stream().map(WebElement::getText).toList();
                 LiveCast liveCast = LiveCast.createLiveCast(player, currentText, LocalDateTime.now());
                 game.addLiveCast(liveCast);

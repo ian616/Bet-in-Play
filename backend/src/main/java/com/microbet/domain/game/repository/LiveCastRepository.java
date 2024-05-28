@@ -26,7 +26,7 @@ public class LiveCastRepository {
     }
 
     public List<LiveCast> findAll() {
-        return em.createQuery("select m from LiveCast m", LiveCast.class)
+        return em.createQuery("SELECT lc FROM LiveCast lc ORDER BY lc.sortOrder", LiveCast.class)
                 .getResultList();
     }
 

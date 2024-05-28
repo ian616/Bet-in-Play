@@ -63,7 +63,8 @@ public class QuestionService {
     }
 
     private Long evaluateResultQ1(String playerResult){
-        //TODO: 어떻게 string에서 보기로 만들것인지 생각하기
+        //TODO: string에서 options으로 변환하는 알고리즘 필요함
+        
         if(playerResult.equals("볼넷")){
             return 6L;
         }
